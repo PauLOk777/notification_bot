@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/PauLOk777/notification_bot#readme",
   "dependencies": {
+    "mongoose": "^5.8.11",
     "node-telegram-bot-api": "^0.40.0"
   },
   "devDependencies": {

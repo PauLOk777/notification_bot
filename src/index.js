@@ -2,6 +2,8 @@ const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config/config.js');
 const logger = require('./logs/logger.js');
 const keyboard = require('./keyboards/home-keyboard.js');
+const buttons = require('./buttons/home-buttons.js');
+const isNote = require('./helpers/isNote.js');
 
 const bot = new TelegramBot(config.TOKEN, { polling: true });
 logger.botStarted();
@@ -18,9 +20,25 @@ bot.onText(/\/start/, msg => {
 		disable_web_page_preview: true,
 		reply_markup: {
 			keyboard: keyboard.home
-		} });
+		} 
+	});
 });
 
 bot.on('message', msg => {
-	
+
+	switch (msg.text) {
+		case buttons.home.addNote:
+			// Нажата кнопка добавить заметку
+			bot.sendMessage(msg.chat.id, 
+				`Write your note like:\n` + `'Priority' 'Your note'`);
+			break;
+
+	}
+
+	if (isNote.check(msg.text)) {
+		console.log('Added to database');
+		bot.sendMessage(msg.chat.id, 'Your note was added to list.')
+	} else {
+		bot.sendMessage(msg.chat.id, 'Bad request. Try more.')	
+	}
 });
