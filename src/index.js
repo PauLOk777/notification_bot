@@ -8,7 +8,9 @@ const notesModButtons = require('./buttons/notes-mod-buttons.js');
 const {
 	addUser,
 	checkUniqueUser,
-	addNoteInList
+	addNoteInList,
+	getNotes,
+	deleteNote
 } = require('./libs/users.js');
 const { checkNote } = require('./helpers/isNote.js');
 const db = require('./init/db.js');
@@ -50,14 +52,23 @@ bot.on('message', async(msg) => {
 			return;
 		case homeButtons.showAll:
 			// Нажата кнопка показать все заметки
-			let text = 'daun';
 			// Получаем notes user'a
+			const notes = await getNotes(msg.from.id);
+			if (!notes.length) {
+				bot.sendMessage(msg.chat.id, "You dont have any notes.");
+			}
 
-			bot.sendMessage(msg.chat.id, text, {
-				reply_markup: {
-					inline_keyboard: notesModKeyboard('delete', 'update')
-				}
-			});
+			for (const note of notes) {
+				const text = `Priority: ${note.priority}\nText: ${note.text}`;
+
+				await bot.sendMessage(msg.chat.id, text, {
+					reply_markup: {
+						inline_keyboard: notesModKeyboard(
+							'delete ' + note._id, 'update ' + note._id
+							)
+					}
+				});
+			}
 			return;
 	}
 
@@ -73,13 +84,25 @@ bot.on('message', async(msg) => {
 	}
 });
 
-bot.on('callback_query', query => {;
-	switch (query.data) {
+bot.on('callback_query', async(query) => {
+	const commandAndId = query.data.split(' ');
+	switch (commandAndId[0]) {
 		case 'delete':
+			await deleteNote(query.from.id, commandAndId[1]);
+			bot.deleteMessage(query.message.chat.id, query.message.message_id);
 			bot.sendMessage(query.message.chat.id, 'Congrats! You had done this note :)');
 			return;
 		case 'update':
 			bot.sendMessage(query.message.chat.id, 'Congrats! You updated this note :)');
+			bot.editMessageText(text, {
+				chat_id: query.message.chat.id,
+				message_id: query.message.message_id,
+				reply_markup: {
+					inline_keyboard: notesModKeyboard(
+						commandAndId[0] + commandAndId[1], commandAndId[0] + commandAndId[1]
+					)
+				}
+			});
 			return;
 	}
 });

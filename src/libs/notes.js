@@ -18,7 +18,12 @@ async function getNoteById(id) {
 	return await Note.findById(id);
 }
 
+async function deleteNoteById(_id) {
+	await Note.deleteOne({ _id });
+}
+
 module.exports = {
 	addNoteGetId,
-	getNoteById
+	getNoteById,
+	deleteNoteById
 }
