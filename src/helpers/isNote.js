@@ -8,8 +8,10 @@ function checkNote(text) {
 			if (arrayOfSplit[0][i] == numbers[j]) flag = true;
 		}
 		if (!flag) return false;
-		flag = true;
+		flag = false;
 	}
+
+	if (arrayOfSplit.length < 2) return false;
 	return true;
 }
 

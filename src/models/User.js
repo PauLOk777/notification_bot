@@ -10,8 +10,7 @@ const UserSchema = new mongoose.Schema({
 				note: {
     				type: mongoose.Schema.Types.ObjectId,
                     required: true,
-                    ref: 'note',
-                    unique: true
+                    ref: 'note'
                 }
 			}	
     	],

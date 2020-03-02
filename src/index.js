@@ -27,7 +27,7 @@ bot.onText(/\/start/, async(msg) => {
 	<b>I can help you with your notes.
 	You can send me some notes and set priority, 
 	also you can edit and delete it. Just try it:)
-	My owner: <i><a href="https://t.me/paul200">here</a></i></b>`;
+	My owner <i><a href="https://t.me/paul200">here</a></i></b>`;
 
 	// Добавление нового уникального пользователя в бд
 	if (await checkUniqueUser(msg.from.id)) 
@@ -93,16 +93,17 @@ bot.on('callback_query', async(query) => {
 			bot.sendMessage(query.message.chat.id, 'Congrats! You had done this note :)');
 			return;
 		case 'update':
-			bot.sendMessage(query.message.chat.id, 'Congrats! You updated this note :)');
-			bot.editMessageText(text, {
-				chat_id: query.message.chat.id,
-				message_id: query.message.message_id,
-				reply_markup: {
-					inline_keyboard: notesModKeyboard(
-						commandAndId[0] + commandAndId[1], commandAndId[0] + commandAndId[1]
-					)
-				}
-			});
+			bot.sendMessage(query.message.chat.id, "Coming soon.");
+			// bot.sendMessage(query.message.chat.id, 'Congrats! You updated this note :)');
+			// bot.editMessageText(text, {
+			// 	chat_id: query.message.chat.id,
+			// 	message_id: query.message.message_id,
+			// 	reply_markup: {
+			// 		inline_keyboard: notesModKeyboard(
+			// 			commandAndId[0] + commandAndId[1], commandAndId[0] + commandAndId[1]
+			// 		)
+			// 	}
+			// });
 			return;
 	}
 });
