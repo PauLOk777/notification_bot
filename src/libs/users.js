@@ -13,10 +13,14 @@ async function addUser(chatId, username) {
     await user.save();
 }
 
+async function getNotes(chatId) {
+
+}
+
 async function addNoteInList(chatId, message) {
 	const users = await User.find({ chatId });
 	if (!users.length) return false;
-	const id = addNoteGetId(message);
+	const id = await addNoteGetId(message);
 	users[0].notes.push({note: id});
 	users[0].save();
 	return true;
@@ -24,7 +28,6 @@ async function addNoteInList(chatId, message) {
 
 async function checkUniqueUser(chatId) {
 	const users = await User.find({ chatId });
-	console.log(users);
 	if (!users.length) return true;
 	return false;
 }
@@ -32,5 +35,6 @@ async function checkUniqueUser(chatId) {
 module.exports = {
 	addUser,
 	addNoteInList,
+	getNotes,
 	checkUniqueUser
 }

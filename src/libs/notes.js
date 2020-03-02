@@ -1,10 +1,13 @@
 const Note = require('../models/Note.js');
 
 async function addNoteGetId(message) {
-	const arrayOfSplit = message.split(' ', 2);
+	const indexOfSpace = message.indexOf(' ');
+	const priority = +message.substring(0, indexOfSpace);
+	const text = message.substring(indexOfSpace + 1, message.length);
+
 	const note = new Note({
-		priority: +arrayOfSplit[0],
-		text: arrayOfSplit[1]
+		priority,
+		text
 	});
 
 	const res = await note.save();
