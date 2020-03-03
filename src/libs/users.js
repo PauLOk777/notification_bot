@@ -2,7 +2,8 @@ const User = require('../models/User.js');
 const { 
 	getNoteById,
 	addNoteGetId,
-	deleteNoteById
+	deleteNoteById,
+	updateNoteById
 } = require('./notes.js');
 
 async function addUser(userId, username) {
@@ -45,6 +46,7 @@ async function deleteNote(userId, id) {
 			user.notes.splice(index, 1);
 		}
 	});
+	user.numberOfNotes--;
 	user.save();
 }
 
@@ -53,6 +55,7 @@ async function addNoteInList(userId, message) {
 	if (!user) return false;
 	const id = await addNoteGetId(message);
 	user.notes.push({note: id});
+	user.numberOfNotes++;
 	user.save();
 	return true;
 }
@@ -63,10 +66,32 @@ async function checkUniqueUser(userId) {
 	return false;
 }
 
+async function updateNote(text) {
+	const indecies = [];
+
+	for (let i = 0; i < text.length; i++) {
+		if (text[i] == ' ') indecies.push(i);
+	}
+
+	const noteId = text.substring(0, indecies[0]);
+	const newPriority = text.substring(indecies[1] + 1, indecies[2]);
+	const newText = text.substring(indecies[2] + 1, text.length);
+
+	await updateNoteById(noteId, newPriority, newText);
+}
+
+async function getDeletedNote (_id) {
+	const note = await getNoteById(_id);
+	return note.text;
+}
+
 module.exports = {
 	addUser,
 	addNoteInList,
 	getNotes,
+	getUser,
 	checkUniqueUser,
-	deleteNote
+	deleteNote,
+	updateNote,
+	getDeletedNote
 }

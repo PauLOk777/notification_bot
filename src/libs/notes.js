@@ -14,16 +14,22 @@ async function addNoteGetId(message) {
 	return res._id;
 }
 
-async function getNoteById(id) {
-	return await Note.findById(id);
+async function getNoteById(_id) {
+	return await Note.findById(_id);
 }
 
 async function deleteNoteById(_id) {
 	await Note.deleteOne({ _id });
 }
 
+async function updateNoteById(_id, priority, text) {
+	const note = await Note.findByIdAndUpdate(_id, { priority, text });
+	console.log(note);
+}
+
 module.exports = {
 	addNoteGetId,
 	getNoteById,
-	deleteNoteById
+	deleteNoteById,
+	updateNoteById
 }

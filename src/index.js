@@ -10,9 +10,13 @@ const {
 	checkUniqueUser,
 	addNoteInList,
 	getNotes,
-	deleteNote
+	getUser,
+	deleteNote,
+	updateNote,
+	getDeletedNote
 } = require('./libs/users.js');
 const { checkNote } = require('./helpers/isNote.js');
+const { checkUpdateQuery } = require('./helpers/checkUpdateQuery.js');
 const db = require('./init/db.js');
 
 const bot = new TelegramBot(config.TOKEN, { polling: true });
@@ -43,6 +47,37 @@ bot.onText(/\/start/, async(msg) => {
 });
 
 bot.on('message', async(msg) => {
+	if (!getUser(msg.from.id)) {
+		bot.sendMessage(msg.chat.id, 'Start bot for make requests.');
+		return;
+	}
+
+	if (checkUpdateQuery(msg.text)) {
+		const elements = msg.text.split(' ');
+		let textForNote = "";
+
+		for (let i = 3; i < elements.length; i++) {
+			if (i == elements.length - 1) {
+				textForNote += elements[i];
+			} else {
+				textForNote += elements[i] + ' ';
+			}
+		}
+
+		const text = `Priority: ${elements[2]}\nText: ${textForNote}`;
+		await updateNote(msg.text);
+		bot.editMessageText(text, {
+			chat_id: msg.chat.id,
+			message_id: elements[1],
+			reply_markup: {
+				inline_keyboard: notesModKeyboard(
+					'delete ' + elements[0], 'update ' + elements[0]
+				)
+			}
+		});
+		bot.sendMessage(msg.chat.id, `Your note was updated :)`);
+		return;
+	}
 
 	switch (msg.text) {
 		case homeButtons.addNote:
@@ -76,8 +111,10 @@ bot.on('message', async(msg) => {
 	if (checkNote(msg.text)) {
 		if (!(await addNoteInList(msg.from.id, msg.text))) {
 			bot.sendMessage(msg.chat.id, 'Start bot for make requests.');
+			return;
 		} else {
 			bot.sendMessage(msg.chat.id, 'Your note was added to list.');
+			return;
 		}
 	} else if (msg.text[0] != '/') {
 		bot.sendMessage(msg.chat.id, 'Bad request. Try more.');	
@@ -88,22 +125,18 @@ bot.on('callback_query', async(query) => {
 	const commandAndId = query.data.split(' ');
 	switch (commandAndId[0]) {
 		case 'delete':
+			const textOfDeleted = await getDeletedNote(commandAndId[1]);
 			await deleteNote(query.from.id, commandAndId[1]);
 			bot.deleteMessage(query.message.chat.id, query.message.message_id);
-			bot.sendMessage(query.message.chat.id, 'Congrats! You had done this note :)');
+			bot.sendMessage(query.message.chat.id, `Congrats! You had done "${textOfDeleted}" :)`);
 			return;
-		case 'update':
-			bot.sendMessage(query.message.chat.id, "Coming soon.");
-			// bot.sendMessage(query.message.chat.id, 'Congrats! You updated this note :)');
-			// bot.editMessageText(text, {
-			// 	chat_id: query.message.chat.id,
-			// 	message_id: query.message.message_id,
-			// 	reply_markup: {
-			// 		inline_keyboard: notesModKeyboard(
-			// 			commandAndId[0] + commandAndId[1], commandAndId[0] + commandAndId[1]
-			// 		)
-			// 	}
-			// });
+		case 'update':`1`
+			const text = 'Write next construction for updating your note:\n' +
+			'"note_id" "message_id" "priority" "text_of_note"\n' +
+			`Your note_id: ${commandAndId[1]}\n` +
+			`Your message_id: ${query.message.message_id}\n` +
+			'Copy this info to make correct query.';
+			bot.sendMessage(query.message.chat.id, text);
 			return;
 	}
 });
