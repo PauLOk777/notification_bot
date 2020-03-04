@@ -13,7 +13,9 @@ const {
 	getUser,
 	deleteNote,
 	updateNote,
-	getDeletedNote
+	getDeletedNote,
+	getNumberOfNotes,
+	getCompletedNotes
 } = require('./libs/users.js');
 const { checkNote } = require('./helpers/isNote.js');
 const { checkUpdateQuery } = require('./helpers/checkUpdateQuery.js');
@@ -47,12 +49,12 @@ bot.onText(/\/start/, async(msg) => {
 });
 
 bot.on('message', async(msg) => {
-	if (!getUser(msg.from.id)) {
+	if (!(await getUser(msg.from.id))) {
 		bot.sendMessage(msg.chat.id, 'Start bot for make requests.');
 		return;
 	}
 
-	if (checkUpdateQuery(msg.text)) {
+	if (await checkUpdateQuery(msg.text)) {
 		const elements = msg.text.split(' ');
 		let textForNote = "";
 
@@ -91,6 +93,7 @@ bot.on('message', async(msg) => {
 			const notes = await getNotes(msg.from.id);
 			if (!notes.length) {
 				bot.sendMessage(msg.chat.id, "You dont have any notes.");
+				return;
 			}
 
 			for (const note of notes) {
@@ -105,6 +108,14 @@ bot.on('message', async(msg) => {
 				});
 			}
 			return;
+		case homeButtons.numberOfNotes:
+			bot.sendMessage(msg.chat.id, `${msg.from.first_name}, current ` + 
+				`number of your notes: ${await getNumberOfNotes(msg.from.id)}.`);
+			return;
+		case homeButtons.notesCompleted:
+			bot.sendMessage(msg.chat.id, `${msg.from.first_name}, you ` + 
+				`have completed: ${await getCompletedNotes(msg.from.id)} notes.`);
+			return;
 	}
 
 	// Проверка на запрос добавления новой заметки
@@ -118,6 +129,7 @@ bot.on('message', async(msg) => {
 		}
 	} else if (msg.text[0] != '/') {
 		bot.sendMessage(msg.chat.id, 'Bad request. Try more.');	
+		return;
 	}
 });
 
@@ -130,7 +142,7 @@ bot.on('callback_query', async(query) => {
 			bot.deleteMessage(query.message.chat.id, query.message.message_id);
 			bot.sendMessage(query.message.chat.id, `Congrats! You had done "${textOfDeleted}" :)`);
 			return;
-		case 'update':`1`
+		case 'update':
 			const text = 'Write next construction for updating your note:\n' +
 			'"note_id" "message_id" "priority" "text_of_note"\n' +
 			`Your note_id: ${commandAndId[1]}\n` +

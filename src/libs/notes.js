@@ -15,7 +15,13 @@ async function addNoteGetId(message) {
 }
 
 async function getNoteById(_id) {
-	return await Note.findById(_id);
+	let user;
+	try {
+	 	user = await Note.findById(_id);
+	} catch (e) {
+		return null;
+	}
+	return user;
 }
 
 async function deleteNoteById(_id) {
@@ -24,7 +30,6 @@ async function deleteNoteById(_id) {
 
 async function updateNoteById(_id, priority, text) {
 	const note = await Note.findByIdAndUpdate(_id, { priority, text });
-	console.log(note);
 }
 
 module.exports = {

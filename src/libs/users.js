@@ -46,6 +46,7 @@ async function deleteNote(userId, id) {
 			user.notes.splice(index, 1);
 		}
 	});
+	user.notesCompleted++;
 	user.numberOfNotes--;
 	user.save();
 }
@@ -80,9 +81,19 @@ async function updateNote(text) {
 	await updateNoteById(noteId, newPriority, newText);
 }
 
-async function getDeletedNote (_id) {
+async function getDeletedNote(_id) {
 	const note = await getNoteById(_id);
 	return note.text;
+}
+
+async function getNumberOfNotes(userId) {
+	const user = await User.findOne({ userId });
+	return user.numberOfNotes;
+}
+
+async function getCompletedNotes(userId) {
+	const user = await User.findOne({ userId });
+	return user.notesCompleted;
 }
 
 module.exports = {
@@ -93,5 +104,7 @@ module.exports = {
 	checkUniqueUser,
 	deleteNote,
 	updateNote,
-	getDeletedNote
+	getDeletedNote,
+	getCompletedNotes,
+	getNumberOfNotes
 }

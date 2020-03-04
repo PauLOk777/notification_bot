@@ -1,4 +1,6 @@
 module.exports = {
 		addNote: 'Add note',
-		showAll: 'Show all notes'
+		showAll: 'Show all notes',
+		numberOfNotes: 'Current number of notes',
+		notesCompleted: 'Completed notes for all time'
 };
